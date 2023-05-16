@@ -5,7 +5,6 @@
 # Press Restart 1-2 times after Run this code
 
 import network
-import machine
 from machine import Pin, ADC
 import dht
 import urequests
@@ -22,7 +21,6 @@ sensor = dht.DHT11(Pin(14))
 ldr_pin = Pin(5, Pin.IN)
 adc = ADC(0)
 
-# Measure temperature and humidity with DHT11 sensor, LDR sensor reading, and send the data to ThingSpeak
 def measure_environment():
     sensor.measure()
     humidity = sensor.humidity()
@@ -30,14 +28,10 @@ def measure_environment():
     ldr_value = adc.read()
     return humidity, temperature, ldr_value
 
-# Convert LDR reading to inverted light intensity value
 def convert_ldr_to_light(ldr_value):
-    inverted_value = 1023 - ldr_value
-    # Adjust the conversion formula based on LDR characteristics (More light = More value in %)
-    light_intensity = inverted_value / 1023.0 * 100.0
+    light_intensity = (1023 - ldr_value) / 1023.0 * 100.0
     return light_intensity
 
-# Send sensor data to ThingSpeak
 def send_data_to_thingspeak(humidity, temperature, light_intensity):
     sensor_readings = {
         'Humidity': '{:.1f}%'.format(humidity),
@@ -48,8 +42,17 @@ def send_data_to_thingspeak(humidity, temperature, light_intensity):
     request.close()
     print("Sensor Readings:", sensor_readings)
 
-while True:
-    humidity, temperature, ldr_value = measure_environment()
-    light_intensity = convert_ldr_to_light(ldr_value)
-    send_data_to_thingspeak(humidity, temperature, light_intensity)
-    time.sleep(0.5)
+def run_measurement():
+    while True:
+        try:
+            humidity, temperature, ldr_value = measure_environment()
+            light_intensity = convert_ldr_to_light(ldr_value)
+            send_data_to_thingspeak(humidity, temperature, light_intensity)
+            time.sleep(0.5)
+        except Exception as e:
+            print("An error occurred:", e)
+            print("Restarting...")
+            time.sleep(1)
+            continue
+
+run_measurement()
