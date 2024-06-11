@@ -12,10 +12,10 @@ import time
 
 nic = network.WLAN(network.STA_IF)
 nic.active(True)
-nic.connect('Viking kak', 'Minecraft007')
+nic.connect('Viking kak', '')
 
 HTTP_HEADERS = {'Content-Type': 'application/json'}
-THINGSPEAK_WRITE_API_KEY = 'Y9ZKQNMGP1I0C7A0'
+THINGSPEAK_WRITE_API_KEY = ''
 
 sensor = dht.DHT11(Pin(14))
 ldr_pin = Pin(5, Pin.IN)
